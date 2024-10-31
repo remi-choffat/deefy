@@ -11,3 +11,4 @@ config.db.ini
 *.pdf
 *.mp3
 /resources/pistes/
+.idea/
