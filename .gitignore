@@ -1,0 +1,13 @@
+/vendor/
+/node_modules/
+/sujets/
+*.log
+*.cache
+*.env
+*.bak
+*.tmp
+*.swp
+config.db.ini
+*.pdf
+*.mp3
+/resources/pistes/
