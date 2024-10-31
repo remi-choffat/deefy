@@ -1,0 +1,80 @@
+html {
+    background-color: #2D2A2D;
+}
+
+body {
+    color: #EAEAEA;
+    margin: 20px;
+}
+
+.title, .subtitle {
+    color: #EAEAEA;
+}
+
+hr {
+    border: 1px solid #1DCD5B;
+}
+
+audio {
+    background-color: #2D2A2D;
+}
+
+audio::-webkit-media-controls-panel {
+    background-color: #1DCD5B;
+}
+
+audio::-webkit-media-controls-play-button,
+audio::-webkit-media-controls-volume-slider {
+    background-color: #1DCD5B;
+}
+
+.audio-container {
+    display: flex;
+    align-items: center;
+}
+
+.audio-container audio {
+    height: 80px;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+}
+
+nav ul {
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+nav ul li a:hover {
+    color: #1DCD5B;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header img {
+    margin-right: 20px;
+}
+
+.header h1 {
+    margin-right: 30px;
+    display: flex;
+    align-items: center;
+    margin-top: 0;
+    margin-bottom: 0 !important;
+}
