@@ -17,22 +17,20 @@ class AddPodcastTrackAction extends Action
         }
 
         if ($this->http_method === 'GET') {
-            $html = "<h1 class='subtitle'>Ajout d'une piste à la playlist</h1>";
+            $nomPlaylistSession = $_SESSION['playlist']->nom;
+            $html = "<h1 class='subtitle'>Ajout d'un podcast à la playlist <i>$nomPlaylistSession</i></h1>";
             $html .= "<form method='post' action='?action=add-track' enctype='multipart/form-data'>";
             $html .= "<input type='file' name='userfile' accept='.mp3'><br/>";
             $html .= "<input type='text' name='titre' placeholder='Titre'><br/>";
             $html .= "<input type='text' name='auteur' placeholder='Auteur'><br/>";
             $html .= "<input type='text' name='genre' placeholder='Genre'><br/>";
-            $html .= "<input type='number' name='duree' placeholder='Durée'><br/>";
-            $html .= "<input type='date' name='date' placeholder='Date'><br/>";
-            $html .= "<button type='submit'>Ajouter</button>";
+            $html .= "<input type='number' name='duree' placeholder='Durée (secondes)'><br/>";
+            $html .= "<input type='date' name='date' placeholder='Date'><br/><br/>";
+            $html .= "<button class='button' type='submit'>Ajouter</button>";
             $html .= "</form>";
             return $html;
         } elseif ($this->http_method === 'POST') {
             $playlist = $_SESSION['playlist'];
-            if (!is_int($playlist)) {
-                return "<b>La playlist en session n'est pas une playlist</b>";
-            }
 
             $titre = filter_var($_POST['titre'], FILTER_SANITIZE_SPECIAL_CHARS);
             $genre = filter_var($_POST['genre'], FILTER_SANITIZE_SPECIAL_CHARS);
@@ -69,9 +67,16 @@ class AddPodcastTrackAction extends Action
 
             $repository = DeefyRepository::getInstance();
             $track = $repository->savePodcastTrack($track);
-            $repository->addTrackToPlaylist($track->getId(), $playlist);
+            $repository->addTrackToPlaylist($track->getId(), $playlist->getId());
 
-            return "<b>Piste ajoutée à la playlist</b>";
+            // Met à jour la playlist en session
+            $playlist->addTrack($track);
+            $_SESSION['playlist'] = $playlist;
+
+            // Redirige vers la page de la playlist
+            header('Location: ?action=playlist');
+
+            return "<b>Le podcast a été ajouté à la playlist 👍</b>";
         }
 
         return "<b>Méthode HTTP non gérée</b>";

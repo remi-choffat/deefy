@@ -29,32 +29,16 @@ class Dispatcher
      */
     public function run(): void
     {
-        switch ($this->action) {
-            case 'playlist':
-                $action = new DisplayPlaylistAction();
-                break;
-            case 'add-playlist':
-                $action = new AddPlaylistAction();
-                break;
-            case 'add-track':
-                $action = new AddPodcastTrackAction();
-                break;
-            case 'signin':
-                $action = new SigninAction();
-                break;
-            case 'logout':
-                $action = new LogoutAction();
-                break;
-            case 'myPlaylists':
-                $action = new MyPlaylistsAction();
-                break;
-            case 'viewPlaylist':
-                $action = new ViewPlaylistAction();
-                break;
-            default:
-                $action = new DefaultAction();
-                break;
-        }
+        $action = match ($this->action) {
+            'playlist' => new DisplayPlaylistAction(),
+            'add-playlist' => new AddPlaylistAction(),
+            'add-track' => new AddPodcastTrackAction(),
+            'signin' => new SigninAction(),
+            'logout' => new LogoutAction(),
+            'myPlaylists' => new MyPlaylistsAction(),
+            'viewPlaylist' => new ViewPlaylistAction(),
+            default => new DefaultAction(),
+        };
         $html = $action->execute();
         $this->renderPage($html);
     }

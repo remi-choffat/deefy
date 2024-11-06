@@ -22,10 +22,10 @@ class AddPlaylistAction extends Action
             $playlist = new Playlist($nom);
             // Enregistre la playlist dans la base de données
             $playlist = DeefyRepository::getInstance()->saveEmptyPlaylist($playlist);
-            $_SESSION['playlist'] = $playlist->getId();
+            $_SESSION['playlist'] = $playlist;
             $html = "<h2 class='subtitle'>Playlist <i>$nom</i> créée</h2><br/>";
             $html .= (new AudioListRenderer($playlist))->render(0);
-            $html .= "<a href='?action=add-track'>Ajouter une piste</a>";
+            $html .= "<button class='button' onclick='window.location.href=\"?action=add-track\"'>Ajouter une piste</button>";
         } else {
             $html = "Méthode incorrecte";
         }

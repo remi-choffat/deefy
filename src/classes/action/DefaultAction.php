@@ -11,7 +11,7 @@ class DefaultAction extends Action
 
         // Récupère le nom de l'utilisateur connecté
         $user = $_SESSION['user'] ?? null;
-        $username = $user ? htmlspecialchars($user['email']) : 'inconnu';
+        $username = $user ? htmlspecialchars($user['nom']) : 'inconnu';
 
         // Si l'utilisateur est connecté, affiche un message de bienvenue
         if ($user) {

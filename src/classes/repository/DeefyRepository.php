@@ -17,7 +17,7 @@ class DeefyRepository
     private function __construct()
     {
         $dsn = sprintf(
-            '%s:host=%s;dbname=%s;charset=utf8',
+            '%s:host=%s;dbname=%s;charset=utf8mb4',
             self::$config['driver'],
             self::$config['host'],
             self::$config['dbname']
@@ -54,25 +54,74 @@ class DeefyRepository
 
 
     // Récupère une playlist
-    public function getPlaylist(int $playlistId): array
+    public function getPlaylist(int $playlistId, int $userId): ?Playlist
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM playlist WHERE id = :id');
-        $stmt->execute(['id' => $playlistId]);
-        $playlist = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->prepare('
+        SELECT p.*
+        FROM playlist p
+        JOIN user2playlist u2p ON p.id = u2p.id_pl
+        WHERE p.id = :playlist_id AND u2p.id_user = :user_id
+    ');
+        $stmt->execute(['playlist_id' => $playlistId, 'user_id' => $userId]);
+        $playlistData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($playlist) {
-            $playlist['tracks'] = $this->getPlaylistTracks($playlistId);
+        if (!$playlistData) {
+            return null;
         }
 
+        $tracks = $this->getPlaylistTracks($playlistId);
+        $playlist = new Playlist($playlistData['nom']);
+        foreach ($tracks as $track) {
+            $audioTrack = $this->createAudioTrack($track);
+            $playlist->addTrack($audioTrack);
+        }
+        $playlist->setId($playlistData['id']);
+
         return $playlist;
+    }
+
+    public function getPlaylistTracks(int $playlistId): array
+    {
+        $stmt = $this->pdo->prepare('
+        SELECT t.*
+        FROM playlist2track p2t
+        JOIN track t ON p2t.id_track = t.id
+        WHERE p2t.id_pl = :playlist_id
+    ');
+        $stmt->execute(['playlist_id' => $playlistId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function createAudioTrack(array $trackData): PodcastTrack|AlbumTrack
+    {
+        if ($trackData['type'] === 'P') {
+            $audioTrack = new PodcastTrack($trackData['titre'], $trackData['filename']);
+            $audioTrack->setAuteur($trackData['auteur_podcast']);
+            $audioTrack->setDate(new \DateTime($trackData['date_podcast']));
+        } else {
+            $audioTrack = new AlbumTrack($trackData['titre'], $trackData['filename'], $trackData['titre_album'], 0);
+            $audioTrack->setArtiste($trackData['artiste_album']);
+            $audioTrack->setAnnee($trackData['annee_album']);
+        }
+        $audioTrack->setDuree($trackData['duree']);
+        $audioTrack->setGenre($trackData['genre']);
+
+        return $audioTrack;
     }
 
     // Crée une playlist vide
     public function saveEmptyPlaylist(Playlist $playlist): Playlist
     {
+        // Ajoute la playlist créée à la base de données
         $stmt = $this->pdo->prepare('INSERT INTO playlist (nom) VALUES (:nom)');
         $stmt->execute(['nom' => $playlist->nom]);
         $playlist->setId($this->pdo->lastInsertId());
+
+        // Associe la playlist à l'utilisateur
+        $idUser = $_SESSION['user']['id'];
+        $stmt = $this->pdo->prepare('INSERT INTO user2playlist (id_user, id_pl) VALUES (:id_user, :id_pl)');
+        $stmt->execute(['id_user' => $idUser, 'id_pl' => $playlist->getId()]);
+
         return $playlist;
     }
 
@@ -138,19 +187,6 @@ class DeefyRepository
         WHERE u2p.id_user = :user_id
     ');
         $stmt->execute(['user_id' => $userId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    // Récupère les titres d'une playlist
-    public function getPlaylistTracks(int $playlistId): array
-    {
-        $stmt = $this->pdo->prepare('
-        SELECT t.*
-        FROM playlist2track p2t
-        JOIN track t ON p2t.id_track = t.id
-        WHERE p2t.id_pl = :playlist_id
-    ');
-        $stmt->execute(['playlist_id' => $playlistId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

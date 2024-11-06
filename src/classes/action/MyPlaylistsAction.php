@@ -17,7 +17,7 @@ class MyPlaylistsAction extends Action
 
         $html = '<h2 class="subtitle">Mes Playlists</h2><ul class="playlist-list">';
         foreach ($playlists as $playlist) {
-            $html .= '<li><a href="?action=viewPlaylist&id=' . $playlist['id'] . '">' . htmlspecialchars($playlist['nom']) . '</a></li>';
+            $html .= '<li><a href="?action=playlist&id=' . $playlist['id'] . '">' . htmlspecialchars($playlist['nom']) . '</a></li>';
         }
         $html .= '</ul>';
 
