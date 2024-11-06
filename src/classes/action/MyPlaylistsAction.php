@@ -15,11 +15,18 @@ class MyPlaylistsAction extends Action
         $userId = $_SESSION['user']['id'];
         $playlists = DeefyRepository::getInstance()->getUserPlaylists($userId);
 
-        $html = '<h2 class="subtitle">Mes Playlists</h2><ul class="playlist-list">';
-        foreach ($playlists as $playlist) {
-            $html .= '<li><a href="?action=playlist&id=' . $playlist['id'] . '">' . htmlspecialchars($playlist['nom']) . '</a></li>';
+        $html = '<h2 class="subtitle">Mes Playlists</h2>';
+        if (empty($playlists)) {
+            $html .= '<b>Vous n\'avez pas encore de playlists.</b><br/><br/><button class="button is-link" onclick="window.location.href=\'?action=add-playlist\'">Créer une playlist</button>';
+        } else {
+            $html .= '<div class="playlist-container">';
+            foreach ($playlists as $playlist) {
+                $html .= '<div class="playlist-card">';
+                $html .= '<a href="?action=playlist&id=' . $playlist['id'] . '" class="playlist-link">' . htmlspecialchars($playlist['nom']) . '</a>';
+                $html .= '</div>';
+            }
+            $html .= '</div>';
         }
-        $html .= '</ul>';
 
         return $html;
     }

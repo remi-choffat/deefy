@@ -23,12 +23,27 @@ class SigninAction extends Action
     private function displayForm(): string
     {
         return '<form method="POST" action="">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required><br/><br/>
-                    <label for="passwd">Password:</label>
-                    <input type="password" id="passwd" name="passwd" required><br/><br/>
-                    <button class="button" type="submit">Login</button>
-                </form>';
+                  <div class="field">
+                        <label class="label" for="email">Email</label>
+                        <div class="control">
+                            <input class="input" type="email" id="email" name="email" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label" for="passwd">Mot de passe</label>
+                        <div class="control">
+                            <input class="input" type="password" id="passwd" name="passwd" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-link" type="submit">Se connecter</button>
+                        </div>
+                    </div>
+                   
+                </form>
+                <br/>
+                <p>Pas encore de compte ? <a href="?action=register">Inscrivez-vous</a></p>';
     }
 
     private function handleFormSubmission(): ?string

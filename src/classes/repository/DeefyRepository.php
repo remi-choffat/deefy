@@ -190,4 +190,18 @@ class DeefyRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Enregistre un nouvel utilisateur
+    public function saveUser(string $username, string $email, string $password): void
+    {
+        $stmt = $this->pdo->prepare('
+        INSERT INTO User (nom, email, passwd)
+        VALUES (:username, :email, :password)
+    ');
+        $stmt->execute([
+            'username' => $username,
+            'email' => $email,
+            'password' => $password
+        ]);
+    }
+
 }

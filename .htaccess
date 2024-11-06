@@ -1,0 +1,5 @@
+# Permet d'interdire l'accès au fichier config.db.ini
+<Files config.db.ini>
+    Order allow,deny
+    Deny from all
+</Files>

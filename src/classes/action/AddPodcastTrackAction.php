@@ -2,35 +2,104 @@
 
 namespace iutnc\deefy\action;
 
-use iutnc\deefy\audio\lists\Playlist;
 use iutnc\deefy\audio\tracks\PodcastTrack;
-use iutnc\deefy\render\AudioListRenderer;
-use iutnc\deefy\render\PodcastTrackRenderer;
 use iutnc\deefy\repository\DeefyRepository;
 
 class AddPodcastTrackAction extends Action
 {
     public function execute(): string
     {
-        if (!isset($_SESSION['playlist'])) {
-            return "<b>Aucune playlist n'est en cours d'écoute...</b>";
-        }
 
         if ($this->http_method === 'GET') {
-            $nomPlaylistSession = $_SESSION['playlist']->nom;
-            $html = "<h1 class='subtitle'>Ajout d'un podcast à la playlist <i>$nomPlaylistSession</i></h1>";
+
+            if (!isset($_SESSION['user'])) {
+                return '<b>Vous devez être connecté pour ajouter un podcast.</b><br/><br/><button class="button" onclick="window.location.href=\'?action=signin\'">Se connecter</button>';
+            }
+
+            $userId = $_SESSION['user']['id'];
+            $playlists = DeefyRepository::getInstance()->getUserPlaylists($userId);
+            if (isset($_SESSION['playlist'])) {
+                $currentPlaylistId = $_SESSION['playlist']->getId();
+            } elseif (count($playlists) > 0) {
+                $currentPlaylistId = $playlists[0]['id'];
+            } else {
+                return "<b>Vous devez d'abord créer une playlist.</b><br/><br/><button class='button' onclick='window.location.href=\"?action=add-playlist\"'>Créer une playlist</button>";
+            }
+
+            $playlistOptions = '';
+            foreach ($playlists as $playlist) {
+                $selected = $playlist['id'] == $currentPlaylistId ? 'selected' : '';
+                $playlistOptions .= "<option value=\"{$playlist['id']}\" $selected>{$playlist['nom']}</option>";
+            }
+
+            $html = "<h1 class='subtitle'>Ajout d'un podcast à la playlist</h1>";
             $html .= "<form method='post' action='?action=add-track' enctype='multipart/form-data'>";
-            $html .= "<input type='file' name='userfile' accept='.mp3'><br/>";
-            $html .= "<input type='text' name='titre' placeholder='Titre'><br/>";
-            $html .= "<input type='text' name='auteur' placeholder='Auteur'><br/>";
-            $html .= "<input type='text' name='genre' placeholder='Genre'><br/>";
-            $html .= "<input type='number' name='duree' placeholder='Durée (secondes)'><br/>";
-            $html .= "<input type='date' name='date' placeholder='Date'><br/><br/>";
-            $html .= "<button class='button' type='submit'>Ajouter</button>";
+            $html .= "<div class='field'>";
+            $html .= "<label class='label' for='playlist_id'>Playlist</label>";
+            $html .= "<div class='control'>";
+            $html .= "<div class='select'>";
+            $html .= "<select id='playlist_id' name='playlist_id' required>";
+            $html .= $playlistOptions;
+            $html .= "</select>";
+
+            $html .= "</div>";
+            $html .= "</div>";
+            $html .= "</div>";
+            $html .= "<div class='field'>";
+            $html .= "<label class='
+            label' for='titre'>Titre</label>";
+            $html .= "<div class='control'>";
+
+            $html .= "<input class='input' type='text' id='titre' name='titre' required>";
+            $html .= "</div>";
+            $html .= "</div>";
+            $html .= "<div class='field'>";
+            $html .= "<label class='label' for='genre'>Genre</label>";
+            $html .= "<div class='control'>";
+            $html .= "<input class='input' type='text' id='genre' name='genre' required>";
+            $html .= "</div>";
+            $html .= "</div>";
+            $html .= "<div class='field'>";
+            $html .= "<label class='label' for='duree'>Durée (en secondes)</label> ";
+
+            $html .= "<div class='control'>";
+
+            $html .= "<input class='input' type='number' id='duree' name='duree' required>";
+            $html .= "</div>";
+            $html .= "</div>";
+            $html .= "<div class='field'>";
+            $html .= "<label class='label' for='auteur'>Auteur</label>";
+            $html .= "<div class='control'>";
+            $html .= "<input class='input' type='text' id='auteur' name='auteur' required>";
+            $html .= "</div>";
+            $html .= "</div>";
+            $html .= "<div class='field'>";
+            $html .= "<label class='label' for='date'>Date</label>";
+            $html .= "<div class='control'>";
+            $html .= "<input class='input' type='date' id='date' name='date' required>";
+
+
+            $html .= "</div>";
+            $html .= "</div>";
+            $html .= "<div class='field'>";
+            $html .= "<label class='label' for='userfile'>Fichier MP3</label>";
+            $html .= "<div class='control'>";
+            $html .= "<input class='input' type='file' id='userfile' name='userfile' required accept='audio/mp3'>";
+            $html .= "</div>";
+            $html .= "</div>";
+            $html .= "<div class='field'>";
+            $html .= "<div class='control'>";
+            $html .= "<button class='button is-link' type='submit'>Ajouter le podcast</button>";
+            $html .= "</div>";
+            $html .= "</div>";
+
             $html .= "</form>";
             return $html;
         } elseif ($this->http_method === 'POST') {
-            $playlist = $_SESSION['playlist'];
+
+            $playlistId = $_POST['playlist_id'];
+
+            $playlist = DeefyRepository::getInstance()->getPlaylist($playlistId, $_SESSION['user']['id']);
 
             $titre = filter_var($_POST['titre'], FILTER_SANITIZE_SPECIAL_CHARS);
             $genre = filter_var($_POST['genre'], FILTER_SANITIZE_SPECIAL_CHARS);
@@ -67,7 +136,7 @@ class AddPodcastTrackAction extends Action
 
             $repository = DeefyRepository::getInstance();
             $track = $repository->savePodcastTrack($track);
-            $repository->addTrackToPlaylist($track->getId(), $playlist->getId());
+            $repository->addTrackToPlaylist($track->getId(), $playlistId);
 
             // Met à jour la playlist en session
             $playlist->addTrack($track);
