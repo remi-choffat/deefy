@@ -24,14 +24,14 @@ class SigninAction extends Action
     {
         return '<form method="POST" action="">
                     <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
+                    <input type="email" id="email" name="email" required><br/><br/>
                     <label for="passwd">Password:</label>
-                    <input type="password" id="passwd" name="passwd" required>
-                    <button type="submit">Login</button>
+                    <input type="password" id="passwd" name="passwd" required><br/><br/>
+                    <button class="button" type="submit">Login</button>
                 </form>';
     }
 
-    private function handleFormSubmission(): string
+    private function handleFormSubmission(): ?string
     {
         $email = $_POST['email'];
         $password = $_POST['passwd'];
@@ -39,10 +39,14 @@ class SigninAction extends Action
         try {
             $user = AuthnProvider::signin($email, $password);
             $_SESSION['user'] = $user;
-            return 'Authentification réussie. Bienvenue, ' . htmlspecialchars($user['email']) . ' !';
+
+            // Retour à la page d'accueil
+            header('Location: ?action=default');
+
         } catch (AuthnException $e) {
             return 'Erreur d\'authentification : ' . htmlspecialchars($e->getMessage());
         }
+        return null;
     }
 
 }

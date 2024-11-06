@@ -13,7 +13,7 @@ class AddPodcastTrackAction extends Action
     public function execute(): string
     {
         if (!isset($_SESSION['playlist'])) {
-            return "<b>Pas de playlist en session</b>";
+            return "<b>Aucune playlist n'est en cours d'écoute...</b>";
         }
 
         if ($this->http_method === 'GET') {

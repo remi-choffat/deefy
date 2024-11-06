@@ -13,9 +13,9 @@ class AddPlaylistAction extends Action
         if ($this->http_method === 'GET') {
             $html = "<h1 class='subtitle'>Création d'une playlist</h1>";
             $html .= "<form method='post' action='?action=add-playlist'>";
-            $html .= "<label for='nom'>Nom de la playlist : </label><br/>";
-            $html .= "<input type='text' name='nom' id='nom' required>";
-            $html .= "<input type='submit' value='Créer'>";
+            $html .= "<label for='nom'>Nom de la playlist : </label>";
+            $html .= "<input type='text' name='nom' id='nom' required><br/><br/>";
+            $html .= "<input class='button' type='submit' value='Créer'>";
             $html .= "</form>";
         } elseif ($this->http_method === 'POST') {
             $nom = filter_var($_POST['nom'], FILTER_SANITIZE_SPECIAL_CHARS);

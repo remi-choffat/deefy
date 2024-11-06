@@ -8,7 +8,10 @@ use iutnc\deefy\action\AddPlaylistAction;
 use iutnc\deefy\action\AddPodcastTrackAction;
 use iutnc\deefy\action\DefaultAction;
 use iutnc\deefy\action\DisplayPlaylistAction;
+use iutnc\deefy\action\LogoutAction;
+use iutnc\deefy\action\MyPlaylistsAction;
 use iutnc\deefy\action\SigninAction;
+use iutnc\deefy\action\ViewPlaylistAction;
 
 class Dispatcher
 {
@@ -27,29 +30,32 @@ class Dispatcher
     public function run(): void
     {
         switch ($this->action) {
-            case 'default':
-                $action = new DefaultAction();
-                $html = $action->execute();
-                break;
             case 'playlist':
                 $action = new DisplayPlaylistAction();
-                $html = $action->execute();
                 break;
             case 'add-playlist':
                 $action = new AddPlaylistAction();
-                $html = $action->execute();
                 break;
             case 'add-track':
                 $action = new AddPodcastTrackAction();
-                $html = $action->execute();
                 break;
             case 'signin':
                 $action = new SigninAction();
-                $html = $action->execute();
+                break;
+            case 'logout':
+                $action = new LogoutAction();
+                break;
+            case 'myPlaylists':
+                $action = new MyPlaylistsAction();
+                break;
+            case 'viewPlaylist':
+                $action = new ViewPlaylistAction();
                 break;
             default:
-                $html = 'Action inconnue 🤷‍♂️';
+                $action = new DefaultAction();
+                break;
         }
+        $html = $action->execute();
         $this->renderPage($html);
     }
 
@@ -59,6 +65,8 @@ class Dispatcher
      */
     private function renderPage($html): void
     {
+        $user = $_SESSION['user'] ?? null;
+        $authLink = $user ? '<li><a href="?action=logout">Se déconnecter</a></li>' : '<li><a href="?action=signin">Se connecter</a></li>';
         $page = <<<HTML
 <!DOCTYPE html><html lang='fr'><head><meta charset='UTF-8'>
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css'>
@@ -74,11 +82,12 @@ class Dispatcher
        </h1>
        <nav>
             <ul>
-                <li><a href='?action=default'>Par défaut</a></li>
+                <li><a href='?action=default'>Accueil</a></li>
                 <li><a href='?action=playlist'>Voir la playlist en session</a></li>
                 <li><a href='?action=add-playlist'>Ajouter une playlist</a></li>
                 <li><a href='?action=add-track'>Ajouter un podcast</a></li>
-                <li><a href='?action=signin'>Se connecter</a></li>
+                $authLink
+                <li><a href="?action=myPlaylists">Mes Playlists</a></li>
             </ul>
         </nav>
     </div>

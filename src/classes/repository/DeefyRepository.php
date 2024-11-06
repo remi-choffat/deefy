@@ -53,11 +53,18 @@ class DeefyRepository
     }
 
 
-    // Récupère la liste des playlists
-    public function getPlaylist($playlist): array
+    // Récupère une playlist
+    public function getPlaylist(int $playlistId): array
     {
-        $stmt = $this->pdo->query('SELECT * FROM playlist WHERE id = ' . $playlist);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->prepare('SELECT * FROM playlist WHERE id = :id');
+        $stmt->execute(['id' => $playlistId]);
+        $playlist = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($playlist) {
+            $playlist['tracks'] = $this->getPlaylistTracks($playlistId);
+        }
+
+        return $playlist;
     }
 
     // Crée une playlist vide
@@ -119,6 +126,32 @@ class DeefyRepository
         $stmt = $this->pdo->prepare('SELECT * FROM User WHERE email = :email');
         $stmt->execute(['email' => $email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Récupère les playlists d'un utilisateur
+    public function getUserPlaylists(int $userId): array
+    {
+        $stmt = $this->pdo->prepare('
+        SELECT p.* 
+        FROM user2playlist u2p
+        JOIN playlist p ON u2p.id_pl = p.id
+        WHERE u2p.id_user = :user_id
+    ');
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Récupère les titres d'une playlist
+    public function getPlaylistTracks(int $playlistId): array
+    {
+        $stmt = $this->pdo->prepare('
+        SELECT t.*
+        FROM playlist2track p2t
+        JOIN track t ON p2t.id_track = t.id
+        WHERE p2t.id_pl = :playlist_id
+    ');
+        $stmt->execute(['playlist_id' => $playlistId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
 }

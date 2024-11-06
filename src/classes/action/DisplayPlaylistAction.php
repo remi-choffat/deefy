@@ -13,13 +13,13 @@ class DisplayPlaylistAction extends Action
     {
         $html = "";
         if (!isset($_SESSION['playlist'])) {
-            $html .= "Aucune playlist n'a été créée.";
+            $html .= "<b>Aucune playlist n'est en cours d'écoute...</b>";
         } else {
             $playlist = $_SESSION['playlist'];
             $playlist = DeefyRepository::getInstance()->getPlaylist($playlist);
             $playlist = $playlist[0];
             echo "<pre>";
-            echo var_dump($playlist);
+            var_dump($playlist);
             echo "</pre>";
             $r = new AudioListRenderer($playlist);
             $html .= $r->render(Renderer::COMPACT);
