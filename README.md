@@ -23,6 +23,7 @@ enregistrée dans la base puis ajoutée à la playlist affichée.
 - [X] On propose à un utilisateur non authentifié uniquement les actions qu'il peut effectuer sans générer d'erreur.
 - [X] L'utilisateur a un pseudo / nom (colonne ajoutée en base de données) pour un meilleur rendu.
 - [X] Un utilisateur peut se déconnecter, ce qui efface les données en session, et peut permettre à un autre utilisateur de s'authentifier.
+- [X] Lorsqu'un utilisateur souhaite créer un compte, il voit apparaître dynamiquement les contraintes pour créer son mot de passe (longueur, composition) pour éviter les mots de passe faibles.
 
 ## Éléments permettant le test de l'application
 ### Connexion à une base de données
@@ -31,9 +32,10 @@ Le fichier `exemple.config.db.ini`peut être copié en `config.db.ini`, dans leq
 Il est possible de se connecter au compte d'utilisateurs déjà existants dans le but de tester l'application. Voici leurs identifiants :
 - `user1@mail.com`: `user1`
 - `user2@mail.com`: `user2`
-- `user3@mail.com`: `user2`  
+- `user3@mail.com`: `user3`
+- `user4@mail.com`: `user4`    
 
-Les pistes des playlists de ces utilisateurs ne sont pas écoutables. C'est pourquoi je vous invite à créer votre propre compte et/ou à ajouter vos propres pistes.  
+Les pistes des playlists de ces utilisateurs ne sont pas écoutables (la base de donnée est pré-remplie, et les fichiers MP3 ne sont donc pas présents sur le serveur). C'est pourquoi je vous invite à créer votre propre compte et/ou à ajouter vos propres pistes.  
 
 > **Important** : Si un problème venait à survenir lors de l'exécution de l'application, vous pouvez y accéder depuis [
 _Webetu_](https://webetu.iutnc.univ-lorraine.fr/www/choffat2u/S3/Web/deefy/) (les données utilisées seront alors
